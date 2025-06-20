@@ -5,6 +5,7 @@ import { RegisterDto } from './dto/register.dto';
 import * as bcrypt from 'bcrypt';
 import { UserEntity } from './entities/user.entity';
 import { LoginDto } from './dto/login.dto';
+import { User } from '@prisma/client';
 
 
 
@@ -17,7 +18,7 @@ export class AuthService {
 
   async register(dto: RegisterDto) {
     const hashedPassword = await bcrypt.hash(dto.password, 10);
-    const user = await this.prisma.user.create({
+    const user: User = await this.prisma.user.create({
       data: {
         email: dto.email,
         password: hashedPassword,
@@ -36,7 +37,7 @@ export class AuthService {
 
   }
 
-  async login(dto: LoginDto){
+  async login(dto: LoginDto): Promise<{ token: string, user: UserEntity}>{
     const where = dto.email
       ? { email: dto.email }
       : { phone: dto.phone };
