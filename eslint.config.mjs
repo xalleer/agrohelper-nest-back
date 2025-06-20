@@ -4,6 +4,11 @@ import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended'
 import globals from 'globals';
 import tseslint from 'typescript-eslint';
 
+module.exports = {
+  endOfLine: 'lf',
+};
+
+
 export default tseslint.config(
   {
     ignores: ['eslint.config.mjs'],
@@ -16,6 +21,7 @@ export default tseslint.config(
       globals: {
         ...globals.node,
         ...globals.jest,
+
       },
       sourceType: 'commonjs',
       parserOptions: {
