@@ -8,22 +8,56 @@ datasource db {
 }
 
 model User {
-  id              String   @id @default(uuid())
-  email           String   @unique
-  password        String
-  type            UserType
-  phone           String   @unique
-  name            String?
-  farmName        String?  @map("farm_name")
-  contactName     String?  @map("contact_name")
-  contactPosition String?  @map("contact_position")
-  createdAt       DateTime @default(now()) @map("created_at")
-  updatedAt       DateTime @updatedAt @map("updated_at")
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  type      UserType
+  phone     String   @unique
+  name      String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  farmsOwned Farm[]     @relation("OwnerFarms")
+  farmUsers  FarmUser[]
 
   @@map("users")
 }
 
+model Farm {
+  id          String     @id @default(uuid())
+  name        String
+  invitedCode String     @unique
+  ownerId     String
+  owner       User       @relation("OwnerFarms", fields: [ownerId], references: [id])
+  farmUsers   FarmUser[]
+
+  @@map("farms")
+}
+
+model FarmUser {
+  id       String       @id @default(uuid())
+  userId   String
+  farmId   String
+  role     FarmUserRole
+  joinedAt DateTime     @default(now())
+  user     User         @relation(fields: [userId], references: [id])
+  farm     Farm         @relation(fields: [farmId], references: [id])
+
+  @@unique([userId, farmId])
+  @@map("farm_users")
+}
+
 enum UserType {
   INDIVIDUAL
-  FARM
+  FARMER
+  WORKER
+}
+
+enum FarmUserRole {
+  OWNER // Власник ферми (Creator)
+  DIRECTOR // Директор ферми
+  DEPUTY_DIRECTOR // Заступник директора
+  AGRONOMIST // Агроном
+  MACHINIST // Механізатор / тракторист / комбайнер / машиніст — об’єднана роль для техніки
+  WORKER // Загальний робітник (працівник без конкретної спеціалізації)
 }
